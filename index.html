@@ -9,11 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
+
+/* =========================
+   BASE THEME
+========================= */
+
 :root{
-  --bg:#0f1117;
-  --card:#171923;
-  --accent:#3b82f6;
-  --text:#e6e6e6;
+  --text:#eaeaea;
+  --muted:#9aa4af;
+  --glass:rgba(21,26,34,.6);
+  --chip:rgba(255,255,255,.06);
+
+  --ice:#4cc9ff;
+  --fire:#ff7a18;
 }
 
 *{
@@ -21,189 +29,271 @@
   padding:0;
   box-sizing:border-box;
   font-family:'Poppins',sans-serif;
-  scroll-behavior:smooth;
 }
 
 body{
-  background:var(--bg);
+  background:#0b0f14;
   color:var(--text);
+  overflow-x:hidden;
 }
 
-/* NAVBAR */
+/* =========================
+   BG PHOTO
+========================= */
+
+.bg-img{
+  position:fixed;
+  inset:0;
+  background:url("profile.png") center 20% / 650px auto no-repeat;
+  filter: blur(14px) brightness(.65);
+  opacity:.75;
+  z-index:-3;
+}
+
+.bg-overlay{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(#00000055,#000000bb);
+  z-index:-2;
+}
+
+/* =========================
+   NAV
+========================= */
+
 nav{
   position:fixed;
   width:100%;
-  padding:18px 60px;
+  padding:20px 8%;
   display:flex;
   justify-content:space-between;
-  background:#0f1117dd;
-  backdrop-filter:blur(10px);
+  backdrop-filter:blur(8px);
 }
 
-nav a{
-  text-decoration:none;
-  color:var(--text);
-  margin-left:25px;
-}
+/* =========================
+   HERO (NEW STRUCTURE)
+========================= */
 
-section{
+.hero{
   min-height:100vh;
   display:flex;
-  justify-content:center;
   align-items:center;
-  padding:100px 20px;
+  justify-content:center;
+  padding:0 8%;
 }
 
-/* HERO */
-.hero{
-  flex-direction:column;
-  text-align:center;
+.hero-box{
+  display:flex;
+  align-items:center;
+  gap:60px;
+
+  background:var(--glass);
+  backdrop-filter:blur(20px);
+
+  padding:60px;
+  border-radius:24px;
+
+  max-width:1100px;
 }
 
-.profile{
-  width:180px;
-  height:180px;
-  border-radius:50%;
-  object-fit:cover;
-  border:4px solid var(--accent);
-  margin-bottom:20px;
+/* foreground image */
+.hero-img{
+  width:280px;
+  filter:drop-shadow(0 40px 60px rgba(0,0,0,.7));
 }
 
-h1{
-  font-size:44px;
-  font-weight:700;
+/* text */
+.hero-text h1{
+  font-size:56px;
+  margin-bottom:10px;
 }
 
 .tag{
-  color:var(--accent);
-  margin-top:10px;
+  color:var(--muted);
+  height:28px;
 }
 
-/* CARD */
-.card{
-  background:var(--card);
-  padding:40px;
-  border-radius:15px;
-  max-width:900px;
-  width:95%;
-  box-shadow:0 0 30px #00000055;
+.hero-text p{
+  color:var(--muted);
+  margin-top:15px;
+  max-width:420px;
+  line-height:1.7;
 }
 
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:20px;
+/* buttons */
+.buttons{
   margin-top:25px;
 }
 
-.item{
-  background:#1e212d;
-  padding:20px;
-  border-radius:12px;
-}
-
 .btn{
-  display:inline-block;
-  margin-top:20px;
-  padding:10px 20px;
-  background:var(--accent);
-  color:white;
+  padding:10px 22px;
   border-radius:25px;
+  margin-right:10px;
   text-decoration:none;
 }
+
+.primary{
+  background:linear-gradient(45deg,var(--ice),var(--fire));
+  color:white;
+}
+
+.secondary{
+  border:1px solid #444;
+  color:white;
+}
+
+/* skills chips */
+.chips{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:25px;
+}
+
+.chip{
+  background:var(--chip);
+  padding:6px 14px;
+  border-radius:20px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* =========================
+   GLASS CARDS
+========================= */
+
+section{
+  padding:120px 8%;
+}
+
+.card{
+  background:var(--glass);
+  backdrop-filter:blur(18px);
+  padding:40px;
+  border-radius:20px;
+  max-width:1000px;
+  margin:auto;
+}
+
+/* grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+  margin-top:20px;
+}
+
+.item{
+  background:rgba(255,255,255,.05);
+  padding:18px;
+  border-radius:14px;
+  color:var(--muted);
+}
+
+/* =========================
+   FADE IN
+========================= */
+
+.reveal{
+  opacity:0;
+  transform:translateY(40px);
+  transition:1s;
+}
+
+.reveal.active{
+  opacity:1;
+  transform:none;
+}
+
+/* mobile */
+@media(max-width:900px){
+  .hero-box{
+    flex-direction:column;
+    text-align:center;
+  }
+  .hero-img{
+    width:200px;
+  }
+}
+
 </style>
 </head>
 
 <body>
 
-<nav>
-  <b>Aryan Tiwari</b>
-  <div>
-    <a href="#about">About</a>
-    <a href="#projects">Projects</a>
-    <a href="#skills">Skills</a>
-    <a href="#contact">Contact</a>
-  </div>
-</nav>
+<div class="bg-img"></div>
+<div class="bg-overlay"></div>
+
 
 <!-- HERO -->
 <section class="hero">
 
-  <!-- put your image file name here -->
-  <img src="profile.png" class="profile">
+  <div class="hero-box">
 
-  <h1>Aryan Tiwari</h1>
-  <p class="tag">Java Developer • IoT Builder • Problem Solver</p>
+    <img src="profile.png" class="hero-img">
 
-</section>
+    <div class="hero-text">
+      <h1>Aryan Tiwari</h1>
+      <div id="typing" class="tag"></div>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="card">
-    <h2>About Me</h2><br>
-    <p>
-      Diploma Computer Engineering student from Dhanbad with strong skills in
-      Java, Arduino, Web Development, and system building.
-      I focus on creating practical technology solutions that solve real-world problems.
-    </p>
+      <p>
+        Java Developer & IoT Builder focused on creating practical,
+        real-world tech solutions and products that make impact.
+      </p>
+
+      <div class="buttons">
+        <a href="#projects" class="btn primary">Projects</a>
+        <a href="https://github.com/" class="btn secondary">GitHub</a>
+      </div>
+
+      <div class="chips">
+        <div class="chip">Java</div>
+        <div class="chip">Arduino</div>
+        <div class="chip">IoT</div>
+        <div class="chip">Spring Boot</div>
+        <div class="chip">Web Dev</div>
+      </div>
+
+    </div>
+
   </div>
+
 </section>
 
-<!-- PROJECTS -->
-<section id="projects">
+
+<section id="projects" class="reveal">
   <div class="card">
     <h2>Projects</h2>
-
     <div class="grid">
-
-      <div class="item">
-        <b>Go3D</b><br>
-        3D printing platform for fast & affordable CAD solutions.
-      </div>
-
-      <div class="item">
-        <b>BookYourHostel</b><br>
-        Hostel booking website using HTML, CSS, JS & PHP.
-      </div>
-
-      <div class="item">
-        <b>Jeevan Jyoti – Tech Support</b><br>
-        Health awareness website maintenance & troubleshooting.
-      </div>
-
+      <div class="item">Go3D – 3D Printing Platform</div>
+      <div class="item">BookYourHostel – Hostel Booking</div>
+      <div class="item">Jeevan Jyoti – Tech Support</div>
     </div>
   </div>
 </section>
 
-<!-- SKILLS -->
-<section id="skills">
-  <div class="card">
-    <h2>Skills</h2>
 
-    <div class="grid">
-      <div class="item">Java</div>
-      <div class="item">Python</div>
-      <div class="item">C++</div>
-      <div class="item">Arduino</div>
-      <div class="item">HTML/CSS/PHP</div>
-      <div class="item">DBMS / MySQL</div>
-      <div class="item">Git & GitHub</div>
-      <div class="item">VS Code</div>
-    </div>
-  </div>
-</section>
+<script>
+/* typing */
+const roles=["Java Developer","IoT Builder","Problem Solver"];
+let i=0,j=0,del=false;
+function type(){
+ let w=roles[i];
+ document.getElementById("typing").innerText=w.substring(0,j);
+ if(!del&&j++===w.length+1) del=true;
+ else if(del&&j--===0){del=false;i=(i+1)%roles.length;}
+ setTimeout(type,del?40:90);
+}
+type();
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="card" style="text-align:center">
-    <h2>Contact</h2><br>
-    <p>Email: mydreams.aryan@gmail.com</p>
-    <p>Phone: +91 9060532741</p>
-    <a class="btn" href="https://github.com/">GitHub</a>
-  </div>
-</section>
+/* reveal */
+window.addEventListener("scroll",()=>{
+ document.querySelectorAll(".reveal").forEach(el=>{
+  if(el.getBoundingClientRect().top<window.innerHeight-100)
+   el.classList.add("active");
+ });
+});
+</script>
 
 </body>
 </html>
-
