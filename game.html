@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
 
-<title>Dodge The Blocks+</title>
+<title>Dodge + Coins</title>
 
 <style>
 
-/* ================= MODERN CLEAN UI ================= */
+/* ================= CLEAN MODERN UI ================= */
 
 body{
   margin:0;
@@ -22,7 +22,7 @@ body{
 }
 
 .game-box{
-  background:#ffffff;
+  background:#fff;
   padding:22px;
   border-radius:22px;
   box-shadow:0 15px 40px rgba(0,0,0,.12);
@@ -56,7 +56,7 @@ canvas{
   cursor:pointer;
 }
 
-/* controls */
+/* mobile buttons */
 
 .controls{
   margin-top:14px;
@@ -111,7 +111,9 @@ canvas{
 
 <script>
 
-/* ================= SIMPLE SOUNDS ================= */
+/* =================================================
+   🔊 SIMPLE BUILT-IN SOUNDS (no files needed)
+================================================= */
 
 const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
 
@@ -119,6 +121,7 @@ function beep(f,d){
   const o=audioCtx.createOscillator();
   const g=audioCtx.createGain();
   o.frequency.value=f;
+  o.type="square";
   o.connect(g); g.connect(audioCtx.destination);
   o.start();
   g.gain.setValueAtTime(.2,audioCtx.currentTime);
@@ -132,15 +135,17 @@ const sHit=()=>beep(120,.4);
 const sStart=()=>beep(500,.1);
 
 
-/* ================= GAME ================= */
+/* =================================================
+   🎮 GAME LOGIC
+================================================= */
 
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
-let player, blocks, coins, score, speed, running, lives;
+let player, blocks, coins, score, speed, lives, running;
 
-let moveLeftHold=false;
-let moveRightHold=false;
+let velocityX = 0;     // ⭐ fixed movement (NO DRIFT)
+const moveSpeed = 5;
 
 function init(){
   player={x:180,y:460,w:40,h:40};
@@ -150,6 +155,7 @@ function init(){
   speed=2.2;
   lives=3;
   running=true;
+  velocityX=0;
   sStart();
 }
 
@@ -158,7 +164,15 @@ function rect(o,c){
   ctx.fillRect(o.x,o.y,o.w,o.h);
 }
 
-/* ===== spawn settings ===== */
+function hit(a,b){
+  return a.x<b.x+b.w &&
+         a.x+a.w>b.x &&
+         a.y<b.y+b.h &&
+         a.y+a.h>b.y;
+}
+
+
+/* ================= SPAWN SETTINGS ================= */
 
 const blockRate=0.02;
 const coinRate=0.012;
@@ -168,42 +182,39 @@ function spawnBlock(){
   if(blocks.length>=maxBlocks) return;
 
   const s=25+Math.random()*25;
+
   blocks.push({
     x:Math.random()*(canvas.width-s),
-    y:-s,w:s,h:s
+    y:-s,
+    w:s,
+    h:s
   });
 }
 
 function spawnCoin(){
   coins.push({
-    x:Math.random()*(canvas.width-15),
-    y:-15,w:15,h:15
+    x:Math.random()*(canvas.width-14),
+    y:-14,
+    w:14,
+    h:14
   });
 }
 
-/* ===== collision ===== */
 
-function hit(a,b){
-  return a.x<b.x+b.w &&
-         a.x+a.w>b.x &&
-         a.y<b.y+b.h &&
-         a.y+a.h>b.y;
-}
-
-/* ===== update ===== */
+/* ================= UPDATE LOOP ================= */
 
 function update(){
   if(!running) return;
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  /* smooth movement */
-  if(moveLeftHold) player.x-=5;
-  if(moveRightHold) player.x+=5;
+  /* ⭐ smooth physics movement */
+  player.x += velocityX;
 
-  player.x=Math.max(0,Math.min(canvas.width-player.w,player.x));
+  player.x = Math.max(0, Math.min(canvas.width-player.w, player.x));
 
   rect(player,"#ff7a18");
+
 
   /* blocks */
   blocks.forEach(b=>{
@@ -222,9 +233,11 @@ function update(){
     }
   });
 
+
   /* coins */
   coins.forEach(c=>{
     c.y+=speed;
+
     ctx.fillStyle="#f5b301";
     ctx.beginPath();
     ctx.arc(c.x+7,c.y+7,7,0,6.28);
@@ -237,11 +250,12 @@ function update(){
     }
   });
 
+
   blocks=blocks.filter(b=>b.y<canvas.height+50);
   coins=coins.filter(c=>c.y<canvas.height+50);
 
   score++;
-  speed+=0.0008; /* gradual harder */
+  speed+=0.0008;
 
   document.getElementById("score").innerText=score;
   document.getElementById("lives").innerText=lives;
@@ -253,27 +267,31 @@ function update(){
 }
 
 
-/* ================= CONTROLS ================= */
+/* =================================================
+   🎮 CONTROLS (FIXED NO DRIFT)
+================================================= */
 
-/* keyboard hold */
+/* keyboard */
 document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft"){moveLeftHold=true;sMove();}
-  if(e.key==="ArrowRight"){moveRightHold=true;sMove();}
+  if(e.key==="ArrowLeft"){ velocityX=-moveSpeed; sMove(); }
+  if(e.key==="ArrowRight"){ velocityX=moveSpeed; sMove(); }
 });
 
 document.addEventListener("keyup",e=>{
-  if(e.key==="ArrowLeft") moveLeftHold=false;
-  if(e.key==="ArrowRight") moveRightHold=false;
+  if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+    velocityX=0;
+  }
 });
 
 /* mobile hold */
-leftBtn.ontouchstart=()=>{moveLeftHold=true;sMove();}
-rightBtn.ontouchstart=()=>{moveRightHold=true;sMove();}
-leftBtn.ontouchend=()=>moveLeftHold=false;
-rightBtn.ontouchend=()=>moveRightHold=false;
+leftBtn.ontouchstart=()=>{ velocityX=-moveSpeed; sMove(); }
+rightBtn.ontouchstart=()=>{ velocityX=moveSpeed; sMove(); }
+
+leftBtn.ontouchend=()=> velocityX=0;
+rightBtn.ontouchend=()=> velocityX=0;
 
 
-/* restart */
+/* ================================================= */
 
 function restart(){
   init();
