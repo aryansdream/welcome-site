@@ -253,6 +253,64 @@ body.light .card h2{
     flex-direction:column;
     text-align:center;
   }
+
+/* =================================================
+   📱 MOBILE NAVBAR
+================================================= */
+
+.nav-right{
+  display:flex;
+  align-items:center;
+}
+
+/* hamburger hidden on desktop */
+.hamburger{
+  display:none;
+  font-size:26px;
+  cursor:pointer;
+  margin-left:15px;
+}
+
+/* mobile styles */
+@media(max-width:768px){
+
+  .nav-links{
+    position:absolute;
+    top:70px;
+    right:0;
+
+    width:200px;
+
+    flex-direction:column;
+    gap:18px;
+
+    padding:20px;
+
+    background:var(--card);
+    backdrop-filter:blur(12px);
+
+    border-radius:12px 0 0 12px;
+
+    transform:translateX(110%);
+    transition:.3s ease;
+  }
+
+  /* show menu */
+  .nav-links.open{
+    transform:translateX(0);
+  }
+
+  /* show hamburger */
+  .hamburger{
+    display:block;
+  }
+
+  /* hide normal horizontal look */
+  .nav-links li{
+    width:100%;
+  }
+}
+
 }
 
 </style>
@@ -267,14 +325,19 @@ body.light .card h2{
 
 <!-- NAV -->
 <nav>
-  <b>Aryan Tiwari</b>
-  <ul>
-    <li><a href="#home">Home</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><span class="toggle" onclick="toggleMode()">🌙</span></li>
-  </ul>
+  <b class="logo">Aryan Tiwari</b>
+
+  <div class="nav-right">
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><span class="toggle" onclick="toggleMode()">🌙</span></li>
+    </ul>
+
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+  </div>
 </nav>
 
 
@@ -332,6 +395,7 @@ body.light .card h2{
     <p>📱 +91 9060532741</p>
   </div>
 </section>
+
 
 
 <script>
@@ -427,6 +491,10 @@ function animate(){
  requestAnimationFrame(animate);
 }
 animate();
+function toggleMenu(){
+  document.getElementById("navLinks").classList.toggle("open");
+}
+
 
 </script>
 
