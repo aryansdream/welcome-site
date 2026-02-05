@@ -1,0 +1,6 @@
+{
+  "name": "welcome-site",
+  "scripts": {
+    "start": "npx serve ."
+  }
+}
