@@ -10,9 +10,17 @@
 
 <style>
 
-/* =================================================
-   🎨 COLOR SYSTEM
-================================================= */
+/* =========================================================
+   PREMIUM LIGHT MODE REFINEMENT
+   ✔ no borders
+   ✔ soft shadows only
+   ✔ darker ivory bg
+   ✔ corporate / Apple feel
+   ✔ dark mode unchanged
+========================================================= */
+
+
+/* ================= COLOR SYSTEM (DARK DEFAULT) ================= */
 
 :root{
   --bg:#0b0f14;
@@ -22,25 +30,37 @@
   --card:rgba(21,26,34,.6);
   --chip:rgba(255,255,255,.06);
 
-  --accent:#4cc9ff; /* dark accent */
+  --accent:#4cc9ff;
 }
 
-/* =================================================
-   ☀️ LIGHT MODE (IVORY + ORANGE)
-================================================= */
+
+/* =====================================================
+   ☀️ LIGHT MODE — CLEAN PREMIUM (UPDATED)
+===================================================== */
 
 body.light{
-  --bg:#f8f7f2;
+
+  /* softer darker ivory */
+  --bg:#e8e6e1;
+
+  /* strong readable text */
   --text:#1f2937;
+
   --muted:#6b7280;
 
+  /* pure white cards */
   --card:#ffffff;
-  --chip:#ecebe6;
 
-  --accent:#ff8c42;
+  /* soft grey chips */
+  --chip:#f2f2f2;
+
+  /* orange accent */
+  --accent:#ff7a18;
 }
 
-/* ================================================= */
+
+
+/* ================= GLOBAL ================= */
 
 *{
   margin:0;
@@ -57,9 +77,9 @@ body{
   transition:.3s ease;
 }
 
-/* =================================================
-   🌌 DARK MODE BACKGROUND IMAGE
-================================================= */
+
+
+/* ================= DARK BACKGROUND ================= */
 
 .bg-img{
   position:fixed;
@@ -77,15 +97,14 @@ body{
   z-index:-2;
 }
 
-/* hide bg for light */
 body.light .bg-img,
 body.light .bg-overlay{
   display:none;
 }
 
-/* =================================================
-   PARTICLES
-================================================= */
+
+
+/* ================= PARTICLES ================= */
 
 canvas{
   position:fixed;
@@ -93,9 +112,9 @@ canvas{
   z-index:-1;
 }
 
-/* =================================================
-   NAVBAR
-================================================= */
+
+
+/* ================= NAVBAR ================= */
 
 nav{
   position:fixed;
@@ -104,26 +123,46 @@ nav{
   display:flex;
   justify-content:space-between;
   align-items:center;
+
   background:var(--card);
   backdrop-filter:blur(10px);
   z-index:1000;
 }
 
-nav ul{
-  display:flex;
-  list-style:none;
-  gap:25px;
+/* soft elevation only */
+body.light nav{
+  backdrop-filter:none;
+  box-shadow:0 4px 18px rgba(0,0,0,.06);
 }
 
-nav a{
+.logo{
+  font-weight:700;
+}
+
+
+
+/* nav links */
+
+.nav-links{
+  display:flex;
+  gap:25px;
+  list-style:none;
+}
+
+.nav-links a{
   text-decoration:none;
   color:var(--muted);
   font-size:14px;
+  transition:.2s;
 }
 
-nav a:hover{
+.nav-links a:hover{
   color:var(--accent);
 }
+
+
+
+/* theme toggle */
 
 .toggle{
   cursor:pointer;
@@ -132,9 +171,25 @@ nav a:hover{
   background:var(--chip);
 }
 
-/* =================================================
-   HERO
-================================================= */
+/* NO borders — only soft shadow */
+body.light .toggle{
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+
+
+
+/* hamburger */
+
+.hamburger{
+  display:none;
+  font-size:26px;
+  cursor:pointer;
+  margin-left:15px;
+}
+
+
+
+/* ================= HERO ================= */
 
 .hero{
   min-height:100vh;
@@ -153,22 +208,37 @@ nav a:hover{
   backdrop-filter:blur(18px);
 
   padding:60px;
-  border-radius:24px;
+  border-radius:28px;
 }
 
-/* orange border in light */
+/* light premium elevation */
 body.light .hero-box{
   backdrop-filter:none;
-  border:2px solid var(--accent);
-  box-shadow:0 8px 24px rgba(255,140,66,.15);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.06),
+    0 2px 8px rgba(0,0,0,.04);
 }
 
-/* profile image */
+
+
+/* image */
 
 .hero-img{
   width:240px;
-  transition:opacity .25s ease;
+  transition:.3s ease;
+  object-fit:cover;
 }
+
+/* clean soft look */
+body.light .hero-img{
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  filter:brightness(.92) contrast(.95);
+  box-shadow:0 6px 18px rgba(0,0,0,.10);
+}
+
+
 
 /* button */
 
@@ -180,11 +250,17 @@ body.light .hero-box{
   background:var(--accent);
   color:white;
   text-decoration:none;
+  transition:.25s;
 }
 
-/* =================================================
-   SECTIONS
-================================================= */
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(255,122,24,.35);
+}
+
+
+
+/* ================= SECTIONS ================= */
 
 section{
   padding:120px 8%;
@@ -194,28 +270,22 @@ section{
   background:var(--card);
   backdrop-filter:blur(18px);
   padding:40px;
-  border-radius:20px;
+  border-radius:22px;
   max-width:1000px;
   margin:auto;
 }
 
-/* orange border in light */
-
+/* clean elevation only */
 body.light .card{
   backdrop-filter:none;
-  border:2px solid var(--accent);
   box-shadow:
-    0 6px 18px rgba(255,140,66,.12),
-    0 1px 2px rgba(0,0,0,.04);
+    0 8px 26px rgba(0,0,0,.06),
+    0 2px 6px rgba(0,0,0,.04);
 }
 
-/* heading underline */
 
-body.light .card h2{
-  border-bottom:3px solid var(--accent);
-  display:inline-block;
-  padding-bottom:6px;
-}
+
+/* GRID */
 
 .grid{
   display:grid;
@@ -227,13 +297,23 @@ body.light .card h2{
 .item{
   background:var(--chip);
   padding:18px;
-  border-radius:14px;
-  color:var(--muted);
+  border-radius:16px;
+  transition:.25s;
 }
 
-/* =================================================
-   FADE IN ANIMATION
-================================================= */
+/* soft floating effect */
+body.light .item{
+  box-shadow:0 2px 6px rgba(0,0,0,.04);
+}
+
+.item:hover{
+  transform:translateY(-4px);
+  box-shadow:0 10px 18px rgba(0,0,0,.08);
+}
+
+
+
+/* ================= FADE ================= */
 
 .reveal{
   opacity:0;
@@ -246,32 +326,10 @@ body.light .card h2{
   transform:none;
 }
 
-/* ================================================= */
 
-@media(max-width:900px){
-  .hero-box{
-    flex-direction:column;
-    text-align:center;
-  }
 
-/* =================================================
-   📱 MOBILE NAVBAR
-================================================= */
+/* ================= MOBILE NAVBAR ================= */
 
-.nav-right{
-  display:flex;
-  align-items:center;
-}
-
-/* hamburger hidden on desktop */
-.hamburger{
-  display:none;
-  font-size:26px;
-  cursor:pointer;
-  margin-left:15px;
-}
-
-/* mobile styles */
 @media(max-width:768px){
 
   .nav-links{
@@ -280,41 +338,41 @@ body.light .card h2{
     right:0;
 
     width:200px;
-
     flex-direction:column;
     gap:18px;
-
     padding:20px;
 
     background:var(--card);
-    backdrop-filter:blur(12px);
-
-    border-radius:12px 0 0 12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.08);
 
     transform:translateX(110%);
     transition:.3s ease;
   }
 
-  /* show menu */
   .nav-links.open{
     transform:translateX(0);
   }
 
-  /* show hamburger */
   .hamburger{
     display:block;
   }
-
-  /* hide normal horizontal look */
-  .nav-links li{
-    width:100%;
-  }
 }
 
+
+
+/* ================= MOBILE HERO ================= */
+
+@media(max-width:900px){
+  .hero-box{
+    flex-direction:column;
+    text-align:center;
+  }
 }
 
 </style>
 </head>
+
+
 
 <body>
 
@@ -323,29 +381,28 @@ body.light .card h2{
 <canvas id="particles"></canvas>
 
 
+
 <!-- NAV -->
 <nav>
   <b class="logo">Aryan Tiwari</b>
 
-  <div class="nav-right">
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><span class="toggle" onclick="toggleMode()">🌙</span></li>
-    </ul>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><span class="toggle" onclick="toggleMode()">🌙</span></li>
+  </ul>
 
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
-  </div>
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
 </nav>
+
 
 
 <!-- HERO -->
 <section id="home" class="hero">
   <div class="hero-box">
 
-    <!-- ⭐ image auto-switch -->
     <img id="profileImg" src="profile-dark.png" class="hero-img">
 
     <div>
@@ -358,23 +415,28 @@ body.light .card h2{
 </section>
 
 
+
 <!-- PROJECTS -->
 <section id="projects" class="reveal">
   <div class="card">
     <h2>Projects</h2>
+
     <div class="grid">
       <div class="item">Go3D – 3D Printing Platform</div>
       <div class="item">BookYourHostel – Hostel Booking</div>
       <div class="item">Jeevan Jyoti – Tech Support</div>
     </div>
+
   </div>
 </section>
+
 
 
 <!-- SKILLS -->
 <section id="skills" class="reveal">
   <div class="card">
     <h2>Skills</h2>
+
     <div class="grid">
       <div class="item">Java</div>
       <div class="item">Python</div>
@@ -383,8 +445,10 @@ body.light .card h2{
       <div class="item">MySQL</div>
       <div class="item">Git</div>
     </div>
+
   </div>
 </section>
+
 
 
 <!-- CONTACT -->
@@ -400,56 +464,47 @@ body.light .card h2{
 
 <script>
 
-/* ================= THEME ================= */
+/* unchanged JS */
 
-const profileImg = document.getElementById("profileImg");
+const img=document.getElementById("profileImg");
 
 function updateImage(){
-  profileImg.style.opacity=0;
-
-  setTimeout(()=>{
-    profileImg.src =
-      document.body.classList.contains("light")
-      ? "profile-light.png"
-      : "profile-dark.png";
-    profileImg.style.opacity=1;
-  },150);
+  img.src=document.body.classList.contains("light")
+    ?"profile-light.png"
+    :"profile-dark.png";
 }
 
 function toggleMode(){
   document.body.classList.toggle("light");
   localStorage.setItem("theme",
     document.body.classList.contains("light")?"light":"dark");
-  updateIcon();
   updateImage();
 }
 
-function updateIcon(){
-  document.querySelector(".toggle").textContent =
-    document.body.classList.contains("light")?"☀️":"🌙";
+if(localStorage.getItem("theme")==="light"){
+  document.body.classList.add("light");
 }
 
-/* load theme */
-const saved = localStorage.getItem("theme");
-if(saved==="light") document.body.classList.add("light");
-updateIcon();
 updateImage();
 
-/* ================= TYPING ================= */
+function toggleMenu(){
+  navLinks.classList.toggle("open");
+}
 
-const roles=["Java Developer","IoT Builder","Problem Solver"];
+const roles=["Python Developer","IoT Builder","Problem Solver","Web Developer"];
+
 let i=0,j=0,del=false;
 
 function type(){
  let w=roles[i];
- document.getElementById("typing").innerText=w.substring(0,j);
+ typing.innerText=w.substring(0,j);
+
  if(!del&&j++===w.length+1) del=true;
  else if(del&&j--===0){del=false;i=(i+1)%roles.length;}
+
  setTimeout(type,del?40:90);
 }
 type();
-
-/* ================= SCROLL FADE ================= */
 
 window.addEventListener("scroll",()=>{
  document.querySelectorAll(".reveal").forEach(el=>{
@@ -458,15 +513,13 @@ window.addEventListener("scroll",()=>{
  });
 });
 
-/* ================= PARTICLES ================= */
-
 const canvas=document.getElementById("particles");
 const ctx=canvas.getContext("2d");
 
 canvas.width=innerWidth;
 canvas.height=innerHeight;
 
-let dots=Array.from({length:50},()=>({
+let dots=Array.from({length:40},()=>({
  x:Math.random()*canvas.width,
  y:Math.random()*canvas.height,
  r:Math.random()*2,
@@ -478,10 +531,12 @@ function animate(){
  ctx.clearRect(0,0,canvas.width,canvas.height);
 
  const light=document.body.classList.contains("light");
- const color=light?"rgba(0,0,0,.12)":"rgba(255,255,255,.2)";
+ const color=light?"rgba(0,0,0,.18)":"rgba(255,255,255,.2)";
 
  dots.forEach(d=>{
-  d.x+=d.dx; d.y+=d.dy;
+  d.x+=d.dx;
+  d.y+=d.dy;
+
   ctx.beginPath();
   ctx.arc(d.x,d.y,d.r,0,6.28);
   ctx.fillStyle=color;
@@ -490,11 +545,8 @@ function animate(){
 
  requestAnimationFrame(animate);
 }
-animate();
-function toggleMenu(){
-  document.getElementById("navLinks").classList.toggle("open");
-}
 
+animate();
 
 </script>
 
