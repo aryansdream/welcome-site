@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
 
-<title>Dodge The Blocks</title>
+<title>Dodge The Blocks+</title>
 
 <style>
 
-/* ================= CLEAN PREMIUM STYLE ================= */
+/* ================= MODERN CLEAN UI ================= */
 
 body{
   margin:0;
@@ -17,22 +17,17 @@ body{
   justify-content:center;
   align-items:center;
   height:100vh;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  font-family:system-ui,-apple-system,sans-serif;
   overflow:hidden;
 }
 
 .game-box{
   background:#ffffff;
-  padding:24px;
+  padding:22px;
   border-radius:22px;
   box-shadow:0 15px 40px rgba(0,0,0,.12);
   text-align:center;
   max-width:95vw;
-}
-
-h1{
-  margin-bottom:12px;
-  font-size:20px;
 }
 
 canvas{
@@ -46,7 +41,7 @@ canvas{
 }
 
 .info{
-  margin-top:10px;
+  margin-top:8px;
   font-size:14px;
   color:#666;
 }
@@ -61,7 +56,7 @@ canvas{
   cursor:pointer;
 }
 
-/* mobile controls */
+/* controls */
 
 .controls{
   margin-top:14px;
@@ -96,12 +91,13 @@ canvas{
 
 <div class="game-box">
 
-  <h1>🎮 Dodge The Blocks</h1>
+  <h2>🎮 Dodge + Coins</h2>
 
   <canvas id="game" width="400" height="500"></canvas>
 
   <div class="info">
-    Move ← → | Score: <span id="score">0</span>
+    Score: <span id="score">0</span> |
+    ❤️ <span id="lives">3</span>
   </div>
 
   <button class="btn" onclick="restart()">Restart</button>
@@ -115,145 +111,166 @@ canvas{
 
 <script>
 
-/* ================= SIMPLE SOUNDS (no files needed) ================= */
+/* ================= SIMPLE SOUNDS ================= */
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
 
-function beep(freq, duration){
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-
-  osc.frequency.value = freq;
-  osc.type = "square";
-
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-
-  osc.start();
-
-  gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-
-  osc.stop(audioCtx.currentTime + duration);
+function beep(f,d){
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.frequency.value=f;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  g.gain.setValueAtTime(.2,audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d);
+  o.stop(audioCtx.currentTime+d);
 }
 
-function moveSound(){ beep(600, 0.05); }
-function hitSound(){ beep(120, 0.4); }
-function startSound(){ beep(400, 0.1); beep(700, 0.1); }
+const sMove=()=>beep(600,.03);
+const sCoin=()=>beep(900,.06);
+const sHit=()=>beep(120,.4);
+const sStart=()=>beep(500,.1);
 
 
 /* ================= GAME ================= */
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
 
-let player, blocks, score, speed, running;
+let player, blocks, coins, score, speed, running, lives;
+
+let moveLeftHold=false;
+let moveRightHold=false;
 
 function init(){
-  player = { x:180, y:460, w:40, h:40 };
-  blocks = [];
-  score = 0;
-  speed = 2;
-  running = true;
-  startSound();
+  player={x:180,y:460,w:40,h:40};
+  blocks=[];
+  coins=[];
+  score=0;
+  speed=2.2;
+  lives=3;
+  running=true;
+  sStart();
 }
 
-/* FEWER BLOCKS */
-const spawnRate = 0.03;   // reduced (was 0.03)
-const maxBlocks = 6;       // cap blocks
+function rect(o,c){
+  ctx.fillStyle=c;
+  ctx.fillRect(o.x,o.y,o.w,o.h);
+}
 
+/* ===== spawn settings ===== */
+
+const blockRate=0.02;
+const coinRate=0.012;
+const maxBlocks=7;
 
 function spawnBlock(){
-  if(blocks.length >= maxBlocks) return;
+  if(blocks.length>=maxBlocks) return;
 
-  const size = 25 + Math.random()*25;
+  const s=25+Math.random()*25;
   blocks.push({
-    x: Math.random()*(canvas.width-size),
-    y: -size,
-    w: size,
-    h: size
+    x:Math.random()*(canvas.width-s),
+    y:-s,w:s,h:s
   });
 }
 
-function drawRect(o,color){
-  ctx.fillStyle = color;
-  ctx.fillRect(o.x,o.y,o.w,o.h);
+function spawnCoin(){
+  coins.push({
+    x:Math.random()*(canvas.width-15),
+    y:-15,w:15,h:15
+  });
 }
+
+/* ===== collision ===== */
+
+function hit(a,b){
+  return a.x<b.x+b.w &&
+         a.x+a.w>b.x &&
+         a.y<b.y+b.h &&
+         a.y+a.h>b.y;
+}
+
+/* ===== update ===== */
 
 function update(){
   if(!running) return;
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  drawRect(player,"#ff7a18");
+  /* smooth movement */
+  if(moveLeftHold) player.x-=5;
+  if(moveRightHold) player.x+=5;
 
+  player.x=Math.max(0,Math.min(canvas.width-player.w,player.x));
+
+  rect(player,"#ff7a18");
+
+  /* blocks */
   blocks.forEach(b=>{
-    b.y += speed;
-    drawRect(b,"#333");
+    b.y+=speed;
+    rect(b,"#333");
 
-    if(player.x < b.x + b.w &&
-       player.x + player.w > b.x &&
-       player.y < b.y + b.h &&
-       player.y + player.h > b.y){
+    if(hit(player,b)){
+      lives--;
+      sHit();
+      b.y=9999;
 
+      if(lives<=0){
         running=false;
-        hitSound();
         setTimeout(()=>alert("Game Over! Score: "+score),100);
+      }
     }
   });
 
-  blocks = blocks.filter(b=>b.y<canvas.height+40);
+  /* coins */
+  coins.forEach(c=>{
+    c.y+=speed;
+    ctx.fillStyle="#f5b301";
+    ctx.beginPath();
+    ctx.arc(c.x+7,c.y+7,7,0,6.28);
+    ctx.fill();
+
+    if(hit(player,c)){
+      score+=10;
+      sCoin();
+      c.y=9999;
+    }
+  });
+
+  blocks=blocks.filter(b=>b.y<canvas.height+50);
+  coins=coins.filter(c=>c.y<canvas.height+50);
 
   score++;
-  if(score%400===0) speed+=0.4;
+  speed+=0.0008; /* gradual harder */
 
-  document.getElementById("score").innerText = score;
+  document.getElementById("score").innerText=score;
+  document.getElementById("lives").innerText=lives;
 
-  if(Math.random()<spawnRate) spawnBlock();
+  if(Math.random()<blockRate) spawnBlock();
+  if(Math.random()<coinRate) spawnCoin();
 
   requestAnimationFrame(update);
 }
 
 
-/* ================= MOVEMENT ================= */
+/* ================= CONTROLS ================= */
 
-function moveLeft(){
-  if(player.x>0){
-    player.x-=20;
-    moveSound();
-  }
-}
-
-function moveRight(){
-  if(player.x<canvas.width-player.w){
-    player.x+=20;
-    moveSound();
-  }
-}
-
-
-/* desktop */
+/* keyboard hold */
 document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft") moveLeft();
-  if(e.key==="ArrowRight") moveRight();
+  if(e.key==="ArrowLeft"){moveLeftHold=true;sMove();}
+  if(e.key==="ArrowRight"){moveRightHold=true;sMove();}
 });
 
-/* mobile buttons */
-leftBtn.addEventListener("touchstart", moveLeft);
-rightBtn.addEventListener("touchstart", moveRight);
-
-
-/* swipe */
-let startX=0;
-canvas.addEventListener("touchstart",e=>{
-  startX=e.touches[0].clientX;
+document.addEventListener("keyup",e=>{
+  if(e.key==="ArrowLeft") moveLeftHold=false;
+  if(e.key==="ArrowRight") moveRightHold=false;
 });
-canvas.addEventListener("touchmove",e=>{
-  let diff=e.touches[0].clientX-startX;
-  if(diff>30) moveRight();
-  if(diff<-30) moveLeft();
-  startX=e.touches[0].clientX;
-});
+
+/* mobile hold */
+leftBtn.ontouchstart=()=>{moveLeftHold=true;sMove();}
+rightBtn.ontouchstart=()=>{moveRightHold=true;sMove();}
+leftBtn.ontouchend=()=>moveLeftHold=false;
+rightBtn.ontouchend=()=>moveRightHold=false;
 
 
 /* restart */
@@ -270,4 +287,3 @@ update();
 
 </body>
 </html>
-
