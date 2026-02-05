@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Dodge The Blocks</title>
+
+<style>
+/* ===== Modern clean game style ===== */
+
+body{
+  margin:0;
+  background:#e8e6e1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+}
+
+.game-box{
+  background:#ffffff;
+  padding:30px;
+  border-radius:22px;
+  box-shadow:0 15px 40px rgba(0,0,0,.12);
+  text-align:center;
+}
+
+h1{
+  margin-bottom:12px;
+  font-size:22px;
+  color:#222;
+}
+
+canvas{
+  background:#fafafa;
+  border-radius:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.08);
+}
+
+.info{
+  margin-top:10px;
+  font-size:14px;
+  color:#666;
+}
+
+.btn{
+  margin-top:10px;
+  padding:8px 18px;
+  background:#ff7a18;
+  color:white;
+  border:none;
+  border-radius:18px;
+  cursor:pointer;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+}
+</style>
+</head>
+
+<body>
+
+<div class="game-box">
+  <h1>🎮 Dodge The Blocks</h1>
+  <canvas id="game" width="400" height="500"></canvas>
+  <div class="info">Move ← → | Score: <span id="score">0</span></div>
+  <button class="btn" onclick="restart()">Restart</button>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let player, blocks, score, speed, running;
+
+function init(){
+  player = { x:180, y:460, w:40, h:40 };
+  blocks = [];
+  score = 0;
+  speed = 2;
+  running = true;
+}
+
+function spawnBlock(){
+  const size = 25 + Math.random()*25;
+  blocks.push({
+    x: Math.random()*(canvas.width-size),
+    y: -size,
+    w: size,
+    h: size
+  });
+}
+
+function drawRect(obj,color){
+  ctx.fillStyle = color;
+  ctx.fillRect(obj.x,obj.y,obj.w,obj.h);
+}
+
+function update(){
+  if(!running) return;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // player
+  drawRect(player,"#ff7a18");
+
+  // blocks
+  blocks.forEach(b=>{
+    b.y += speed;
+    drawRect(b,"#333");
+
+    // collision
+    if(player.x < b.x + b.w &&
+       player.x + player.w > b.x &&
+       player.y < b.y + b.h &&
+       player.y + player.h > b.y){
+        running=false;
+        alert("Game Over! Score: " + score);
+    }
+  });
+
+  // remove old
+  blocks = blocks.filter(b=>b.y<canvas.height+40);
+
+  // difficulty
+  score++;
+  if(score%300===0) speed+=0.5;
+
+  document.getElementById("score").innerText = score;
+
+  if(Math.random()<0.03) spawnBlock();
+
+  requestAnimationFrame(update);
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowLeft" && player.x>0) player.x-=20;
+  if(e.key==="ArrowRight" && player.x<canvas.width-player.w) player.x+=20;
+});
+
+function restart(){
+  init();
+  update();
+}
+
+init();
+update();
+</script>
+
+</body>
+</html>
