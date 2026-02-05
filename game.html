@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
 
 <title>Dodge The Blocks</title>
 
 <style>
-/* ===== Modern clean game style ===== */
+
+/* ================= CLEAN PREMIUM STYLE ================= */
 
 body{
   margin:0;
@@ -17,26 +18,31 @@ body{
   align-items:center;
   height:100vh;
   font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  overflow:hidden;
 }
 
 .game-box{
   background:#ffffff;
-  padding:30px;
+  padding:24px;
   border-radius:22px;
   box-shadow:0 15px 40px rgba(0,0,0,.12);
   text-align:center;
+  max-width:95vw;
 }
 
 h1{
   margin-bottom:12px;
-  font-size:22px;
-  color:#222;
+  font-size:20px;
 }
 
 canvas{
   background:#fafafa;
   border-radius:14px;
   box-shadow:0 6px 20px rgba(0,0,0,.08);
+  width:90vw;
+  max-width:400px;
+  height:70vh;
+  max-height:500px;
 }
 
 .info{
@@ -55,22 +61,89 @@ canvas{
   cursor:pointer;
 }
 
-.btn:hover{
-  transform:translateY(-2px);
+/* mobile controls */
+
+.controls{
+  margin-top:14px;
+  display:flex;
+  justify-content:center;
+  gap:25px;
 }
+
+.ctrl-btn{
+  width:65px;
+  height:65px;
+  font-size:26px;
+  background:#ff7a18;
+  color:white;
+  border:none;
+  border-radius:18px;
+  box-shadow:0 6px 16px rgba(255,122,24,.3);
+}
+
+.ctrl-btn:active{
+  transform:scale(.95);
+}
+
+@media(min-width:900px){
+  .controls{ display:none; }
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="game-box">
+
   <h1>🎮 Dodge The Blocks</h1>
+
   <canvas id="game" width="400" height="500"></canvas>
-  <div class="info">Move ← → | Score: <span id="score">0</span></div>
+
+  <div class="info">
+    Move ← → | Score: <span id="score">0</span>
+  </div>
+
   <button class="btn" onclick="restart()">Restart</button>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="leftBtn">←</button>
+    <button class="ctrl-btn" id="rightBtn">→</button>
+  </div>
+
 </div>
 
 <script>
+
+/* ================= SIMPLE SOUNDS (no files needed) ================= */
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function beep(freq, duration){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.frequency.value = freq;
+  osc.type = "square";
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start();
+
+  gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function moveSound(){ beep(600, 0.05); }
+function hitSound(){ beep(120, 0.4); }
+function startSound(){ beep(400, 0.1); beep(700, 0.1); }
+
+
+/* ================= GAME ================= */
+
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -82,9 +155,17 @@ function init(){
   score = 0;
   speed = 2;
   running = true;
+  startSound();
 }
 
+/* FEWER BLOCKS */
+const spawnRate = 0.012;   // reduced (was 0.03)
+const maxBlocks = 6;       // cap blocks
+
+
 function spawnBlock(){
+  if(blocks.length >= maxBlocks) return;
+
   const size = 25 + Math.random()*25;
   blocks.push({
     x: Math.random()*(canvas.width-size),
@@ -94,9 +175,9 @@ function spawnBlock(){
   });
 }
 
-function drawRect(obj,color){
+function drawRect(o,color){
   ctx.fillStyle = color;
-  ctx.fillRect(obj.x,obj.y,obj.w,obj.h);
+  ctx.fillRect(o.x,o.y,o.w,o.h);
 }
 
 function update(){
@@ -104,42 +185,78 @@ function update(){
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // player
   drawRect(player,"#ff7a18");
 
-  // blocks
   blocks.forEach(b=>{
     b.y += speed;
     drawRect(b,"#333");
 
-    // collision
     if(player.x < b.x + b.w &&
        player.x + player.w > b.x &&
        player.y < b.y + b.h &&
        player.y + player.h > b.y){
+
         running=false;
-        alert("Game Over! Score: " + score);
+        hitSound();
+        setTimeout(()=>alert("Game Over! Score: "+score),100);
     }
   });
 
-  // remove old
   blocks = blocks.filter(b=>b.y<canvas.height+40);
 
-  // difficulty
   score++;
-  if(score%300===0) speed+=0.5;
+  if(score%400===0) speed+=0.4;
 
   document.getElementById("score").innerText = score;
 
-  if(Math.random()<0.03) spawnBlock();
+  if(Math.random()<spawnRate) spawnBlock();
 
   requestAnimationFrame(update);
 }
 
+
+/* ================= MOVEMENT ================= */
+
+function moveLeft(){
+  if(player.x>0){
+    player.x-=20;
+    moveSound();
+  }
+}
+
+function moveRight(){
+  if(player.x<canvas.width-player.w){
+    player.x+=20;
+    moveSound();
+  }
+}
+
+
+/* desktop */
 document.addEventListener("keydown",e=>{
-  if(e.key==="ArrowLeft" && player.x>0) player.x-=20;
-  if(e.key==="ArrowRight" && player.x<canvas.width-player.w) player.x+=20;
+  if(e.key==="ArrowLeft") moveLeft();
+  if(e.key==="ArrowRight") moveRight();
 });
+
+/* mobile buttons */
+leftBtn.addEventListener("touchstart", moveLeft);
+rightBtn.addEventListener("touchstart", moveRight);
+
+
+/* swipe */
+let startX=0;
+canvas.addEventListener("touchstart",e=>{
+  startX=e.touches[0].clientX;
+});
+canvas.addEventListener("touchmove",e=>{
+  let diff=e.touches[0].clientX-startX;
+  if(diff>30) moveRight();
+  if(diff<-30) moveLeft();
+  startX=e.touches[0].clientX;
+});
+
+
+/* restart */
 
 function restart(){
   init();
@@ -148,6 +265,7 @@ function restart(){
 
 init();
 update();
+
 </script>
 
 </body>
